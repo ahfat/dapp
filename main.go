@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"projects/dapp/quiz"
+	"projects/dapp/utils"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/joho/godotenv"
 )
@@ -152,7 +152,7 @@ func NewContract(session quiz.QuizSession, client *ethclient.Client, question st
 	loadEnv()
 
 	// hash answer before sending it over network
-	ansHash := stringToKeccak256(answer)
+	ansHash := utils.StringToKeccak256(answer)
 	log.Printf("Default Ans: %s (%v)\n", answer, ansHash)
 
 	// Hash answer before sending it over Ethereum network.
@@ -163,7 +163,7 @@ func NewContract(session quiz.QuizSession, client *ethclient.Client, question st
 	fmt.Printf("Contract deployed! Wait for tx %s to be confirmed.\n", tx.Hash().Hex())
 
 	session.Contract = instance
-	updateEnvFile("CONTRACTADDR", contractAddress.Hex())
+	utils.UpdateEnvFile("CONTRACTADDR", contractAddress.Hex(), envLoc, myenv)
 	return session
 }
 
@@ -179,25 +179,6 @@ func LoadContract(session quiz.QuizSession, client *ethclient.Client) quiz.QuizS
 	}
 	session.Contract = instance
 	return session
-}
-
-//==========================================
-// Utility functions
-
-// stringToKeccak256 converts a string to a keccak256 hash of type [32]byte
-func stringToKeccak256(s string) [32]byte {
-	var output [32]byte
-	copy(output[:], crypto.Keccak256([]byte(s))[:])
-	return output
-}
-
-// updateEnvFile updates our env file with a key-value pair
-func updateEnvFile(k string, val string) {
-	myenv[k] = val
-	err := godotenv.Write(myenv, envLoc)
-	if err != nil {
-		log.Printf("failed to update %s: %v\n", envLoc, err)
-	}
 }
 
 //// Contract interaction
@@ -220,7 +201,7 @@ func readQuestion(session quiz.QuizSession) {
 // sendAnswer sends answer to contract as a keccak256 hash.
 func sendAnswer(session quiz.QuizSession, ans string) {
 	// Send answer
-	txSendAnswer, err := session.SendAnswer(stringToKeccak256(ans))
+	txSendAnswer, err := session.SendAnswer(utils.StringToKeccak256(ans))
 	if err != nil {
 		log.Printf("could not send answer to contract: %v\n", err)
 		return
