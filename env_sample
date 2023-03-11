@@ -1,0 +1,7 @@
+ANSWER="this is the answer"
+CONTRACTADDR="<can be removed at startup, will be created after deploying contract>"
+GATEWAY="https://sepolia.infura.io/v3/<public key>"
+KEYSTORE="<key store absolute path>"
+KEYSTOREPASS="<key store password>"
+PUBLICADDRESS="<public key / address>"
+QUESTION="this is a question"
